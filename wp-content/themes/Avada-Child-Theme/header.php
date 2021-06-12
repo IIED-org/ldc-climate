@@ -12,194 +12,116 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <!DOCTYPE html>
-<html class="<?php echo ( Avada()->settings->get( 'smooth_scrolling' ) ) ? 'no-overflow-y' : ''; ?>" <?php language_attributes(); ?>>
+<html class="<?php avada_the_html_class(); ?>" <?php language_attributes(); ?>>
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href="<?php echo get_stylesheet_directory_uri(); ?>/css/doc.css" rel="stylesheet">
-	
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i" rel="stylesheet"> 
-	
-	<?php Avada()->head->the_viewport(); ?>	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>		<script type="text/javascript" charset="utf-8">			$(document).ready(function(){				$('.search-field').wrap('<div class="search-field"></div>');				$('.search-submit').wrap('<div class="search-button"></div>');				$('.searchwp-live-search-widget-search-form').wrapInner('<div class="search-table wp_autosearch_form_wrapper"></div>');				$('.wp_autosearch_input.ac_input').wrap('<div class="search-field"></div>');				$('.wp_autosearch_submit').wrap('<div class="search-button"></div>');			});		</script>
+
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i" rel="stylesheet">
+
+	<?php Avada()->head->the_viewport(); ?>
 
 	<?php wp_head(); ?>
 
-	<?php $object_id = get_queried_object_id(); ?>
-	<?php $c_page_id = Avada()->fusion_library->get_page_id(); ?>
-
-	<script type="text/javascript">
-		var doc = document.documentElement;
-		doc.setAttribute('data-useragent', navigator.userAgent);
-	</script>
-
 	<?php
 	/**
-	 *
-	 * The settings below are not sanitized.
+	 * The setting below is not sanitized.
 	 * In order to be able to take advantage of this,
 	 * a user would have to gain access to the database
-	 * in which case this is the least on your worries.
+	 * in which case this is the least of your worries.
 	 */
-	echo Avada()->settings->get( 'google_analytics' ); // WPCS: XSS ok.
-	echo Avada()->settings->get( 'space_head' ); // WPCS: XSS ok.
+	echo apply_filters( 'avada_space_head', Avada()->settings->get( 'space_head' ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 	?>
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115190806-1"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
 
-  gtag('config', 'UA-115190806-1');
+	gtag('config', 'UA-115190806-1');
 </script>
-<script src='https://www.google.com/recaptcha/api.js'></script>		
+<script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 
 <?php
-$wrapper_class = ( is_page_template( 'blank.php' ) ) ? 'wrapper_blank' : '';
-
-if ( 'modern' === Avada()->settings->get( 'mobile_menu_design' ) ) {
-	$mobile_logo_pos = strtolower( Avada()->settings->get( 'logo_alignment' ) );
-	if ( 'center' === strtolower( Avada()->settings->get( 'logo_alignment' ) ) ) {
-		$mobile_logo_pos = 'left';
-	}
-}
-
+$object_id      = get_queried_object_id();
+$c_page_id      = Avada()->fusion_library->get_page_id();
+$wrapper_class  = 'fusion-wrapper';
+$wrapper_class .= ( is_page_template( 'blank.php' ) ) ? ' wrapper_blank' : '';
 ?>
-<body <?php body_class(); ?>>
-    
-     
-    
-    
-	<?php
-	do_action( 'avada_before_body_content' );
+<body <?php body_class(); ?> <?php fusion_element_attributes( 'body' ); ?>>
+	<?php do_action( 'avada_before_body_content' ); ?>
+	<a class="skip-link screen-reader-text" href="#content"><?php esc_html_e( 'Skip to content', 'Avada' ); ?></a>
 
-	$boxed_side_header_right = false;
-	$page_bg_layout = ( $c_page_id ) ? get_post_meta( $c_page_id, 'pyre_page_bg_layout', true ) : 'default';
-	?>
-	<?php if ( ( ( 'Boxed' === Avada()->settings->get( 'layout' ) && ( 'default' === $page_bg_layout || '' == $page_bg_layout ) ) || 'boxed' === $page_bg_layout ) && 'Top' != Avada()->settings->get( 'header_position' ) ) : ?>
-		<div id="boxed-wrapper">
-	<?php endif; ?>
-	<?php if ( ( ( 'Boxed' === Avada()->settings->get( 'layout' ) && 'default' === $page_bg_layout ) || 'boxed' === $page_bg_layout ) && 'framed' === Avada()->settings->get( 'scroll_offset' ) ) : ?>
+	<div id="boxed-wrapper">
 		<div class="fusion-sides-frame"></div>
-	<?php endif; ?>
-	<div id="wrapper" class="<?php echo esc_attr( $wrapper_class ); ?>">
-		<div id="home" style="position:relative;top:-1px;"></div>
-		<?php avada_header_template( 'Below', is_archive() || Avada_Helper::bbp_is_topic_tag() ); ?>
-		<?php if ( 'Left' === Avada()->settings->get( 'header_position' ) || 'Right' === Avada()->settings->get( 'header_position' ) ) : ?>
-			<?php avada_side_header(); ?>
-		<?php endif; ?>
+		<div id="wrapper" class="<?php echo esc_attr( $wrapper_class ); ?>">
+			<div id="home" style="position:relative;top:-1px;"></div>
+			<?php if ( has_action( 'avada_render_header' ) ) : ?>
+				<?php do_action( 'avada_render_header' ); ?>
+			<?php else : ?>
 
-		<div id="sliders-container">
-			<?php
-			$slider_page_id = '';
-			if ( ! is_search() ) {
-				$slider_page_id = '';
-				if ( ( ! is_home() && ! is_front_page() && ! is_archive() && isset( $object_id ) ) || ( ! is_home() && is_front_page() && isset( $object_id ) ) ) {
-					$slider_page_id = $object_id;
-				}
-				if ( is_home() && ! is_front_page() ) {
-					$slider_page_id = get_option( 'page_for_posts' );
-				}
-				if ( class_exists( 'WooCommerce' ) && is_shop() ) {
-					$slider_page_id = get_option( 'woocommerce_shop_page_id' );
-				}
-				if ( ! is_home() && ! is_front_page() && ( is_archive() || Avada_Helper::bbp_is_topic_tag() ) && isset( $object_id ) && ( ! ( class_exists( 'WooCommerce' ) && is_shop() ) ) ) {
-					$slider_page_id = $object_id;
-					avada_slider( $slider_page_id, true );
-				}
-				if ( ( 'publish' === get_post_status( $slider_page_id ) && ! post_password_required() && ! is_archive() && ! Avada_Helper::bbp_is_topic_tag() ) || ( 'publish' === get_post_status( $slider_page_id ) && ! post_password_required() && ( class_exists( 'WooCommerce' ) && is_shop() ) ) || ( current_user_can( 'read_private_pages' ) && in_array( get_post_status( $slider_page_id ), array( 'private', 'draft', 'pending' ) ) ) ) {
-					avada_slider( $slider_page_id, ( is_archive() || Avada_Helper::bbp_is_topic_tag() ) && ! ( class_exists( 'WooCommerce' ) && is_shop() ) );
-				}
-			}
-			?>
-		</div>
-		<?php
-		$slider_fallback = get_post_meta( $slider_page_id, 'pyre_fallback', true );
-		?>
-		<?php if ( $slider_fallback ) : ?>
-			<div id="fallback-slide">
-				<img src="<?php echo esc_url_raw( $slider_fallback ); ?>" alt="" />
-			</div>
-		<?php endif; ?>
-		<?php avada_header_template( 'Above', is_archive() || Avada_Helper::bbp_is_topic_tag() ); ?>
+				<?php avada_header_template( 'below', ( is_archive() || Avada_Helper::bbp_is_topic_tag() ) && ! ( class_exists( 'WooCommerce' ) && is_shop() ) ); ?>
+				<?php if ( 'left' === fusion_get_option( 'header_position' ) || 'right' === fusion_get_option( 'header_position' ) ) : ?>
+					<?php avada_side_header(); ?>
+				<?php endif; ?>
 
-		<?php if ( has_action( 'avada_override_current_page_title_bar' ) ) : ?>
-			<?php do_action( 'avada_override_current_page_title_bar', $c_page_id ); ?>
-		<?php else : ?>
+						<div id="sliders-container">
+							<?php
+							$slider_page_id = '';
+							if ( ! is_search() ) {
+								$slider_page_id = '';
+								if ( ( ! is_home() && ! is_front_page() && ! is_archive() && isset( $object_id ) ) || ( ! is_home() && is_front_page() && isset( $object_id ) ) ) {
+									$slider_page_id = $object_id;
+								}
+								if ( is_home() && ! is_front_page() ) {
+									$slider_page_id = get_option( 'page_for_posts' );
+								}
+								if ( class_exists( 'WooCommerce' ) && is_shop() ) {
+									$slider_page_id = get_option( 'woocommerce_shop_page_id' );
+								}
+								if ( ! is_home() && ! is_front_page() && ( is_archive() || Avada_Helper::bbp_is_topic_tag() ) && isset( $object_id ) && ( ! ( class_exists( 'WooCommerce' ) && is_shop() ) ) ) {
+									$slider_page_id = $object_id;
+									avada_slider( $slider_page_id, true );
+								}
+								if ( ( 'publish' === get_post_status( $slider_page_id ) && ! post_password_required() && ! is_archive() && ! Avada_Helper::bbp_is_topic_tag() ) || ( 'publish' === get_post_status( $slider_page_id ) && ! post_password_required() && ( class_exists( 'WooCommerce' ) && is_shop() ) ) || ( current_user_can( 'read_private_pages' ) && in_array( get_post_status( $slider_page_id ), array( 'private', 'draft', 'pending' ) ) ) ) {
+									avada_slider( $slider_page_id, ( is_archive() || Avada_Helper::bbp_is_topic_tag() ) && ! ( class_exists( 'WooCommerce' ) && is_shop() ) );
+								}
+							}
+							?>
+						</div>
+						<?php
+						$slider_fallback = get_post_meta( $slider_page_id, 'pyre_fallback', true );
+						?>
+						<?php if ( $slider_fallback ) : ?>
+							<div id="fallback-slide">
+								<img src="<?php echo esc_url_raw( $slider_fallback ); ?>" alt="" />
+							</div>
+						<?php endif; ?>
+
+				<!-- <?php avada_sliders_container(); ?> -->
+
+				<?php avada_header_template( 'above', ( is_archive() || Avada_Helper::bbp_is_topic_tag() ) && ! ( class_exists( 'WooCommerce' ) && is_shop() ) ); ?>
+
+			<?php endif; ?>
+
 			<?php avada_current_page_title_bar( $c_page_id ); ?>
-		<?php endif; ?>
 
-		<?php if ( is_page_template( 'contact.php' ) && Avada()->settings->get( 'recaptcha_public' ) && Avada()->settings->get( 'recaptcha_private' ) ) : ?>
-			<script type="text/javascript">var RecaptchaOptions = { theme : '<?php echo esc_attr( Avada()->settings->get( 'recaptcha_color_scheme' ) ); ?>' };</script>
-		<?php endif; ?>
-
-		<!-- <?php if ( is_page_template( 'contact.php' ) && Avada()->settings->get( 'gmap_address' ) && Avada()->settings->get( 'status_gmap' ) ) : ?>
 			<?php
-			$map_popup             = ( ! Avada()->settings->get( 'map_popup' ) ) ? 'yes' : 'no';
-			$map_scrollwheel       = ( Avada()->settings->get( 'map_scrollwheel' ) ) ? 'yes' : 'no';
-			$map_scale             = ( Avada()->settings->get( 'map_scale' ) ) ? 'yes' : 'no';
-			$map_zoomcontrol       = ( Avada()->settings->get( 'map_zoomcontrol' ) ) ? 'yes' : 'no';
-			$address_pin           = ( Avada()->settings->get( 'map_pin' ) ) ? 'yes' : 'no';
-			$address_pin_animation = ( Avada()->settings->get( 'gmap_pin_animation' ) ) ? 'yes' : 'no';
-			?>
-			<div id="fusion-gmap-container">
-				<?php // @codingStandardsIgnoreLine
-				echo Avada()->google_map->render_map(
-					array(
-						'address'                  => esc_html( Avada()->settings->get( 'gmap_address' ) ),
-						'type'                     => esc_attr( Avada()->settings->get( 'gmap_type' ) ),
-						'address_pin'              => esc_attr( $address_pin ),
-						'animation'                => esc_attr( $address_pin_animation ),
-						'map_style'                => esc_attr( Avada()->settings->get( 'map_styling' ) ),
-						'overlay_color'            => esc_attr( Avada()->settings->get( 'map_overlay_color' ) ),
-						'infobox'                  => esc_attr( Avada()->settings->get( 'map_infobox_styling' ) ),
-						'infobox_background_color' => esc_attr( Avada()->settings->get( 'map_infobox_bg_color' ) ),
-						'infobox_text_color'       => esc_attr( Avada()->settings->get( 'map_infobox_text_color' ) ),
-						// @codingStandardsIgnoreLine
-						'infobox_content'          => htmlentities( Avada()->settings->get( 'map_infobox_content' ) ),
-						'icon'                     => esc_attr( Avada()->settings->get( 'map_custom_marker_icon' ) ),
-						'width'                    => esc_attr( Avada()->settings->get( 'gmap_dimensions', 'width' ) ),
-						'height'                   => esc_attr( Avada()->settings->get( 'gmap_dimensions', 'height' ) ),
-						'zoom'                     => esc_attr( Avada()->settings->get( 'map_zoom_level' ) ),
-						'scrollwheel'              => esc_attr( $map_scrollwheel ),
-						'scale'                    => esc_attr( $map_scale ),
-						'zoom_pancontrol'          => esc_attr( $map_zoomcontrol ),
-						'popup'                    => esc_attr( $map_popup ),
-					)
-				);
-				?>
-			</div>
-		<?php endif; ?> -->
-		<?php
-		$main_css   = '';
-		$row_css    = '';
-		$main_class = '';
+			$row_css    = '';
+			$main_class = '';
 
-		if ( apply_filters( 'fusion_is_hundred_percent_template', $c_page_id, false ) ) {
-			$main_css = 'padding-left:0px;padding-right:0px;';
-			$hundredp_padding = get_post_meta( $c_page_id, 'pyre_hundredp_padding', true );
-			if ( Avada()->settings->get( 'hundredp_padding' ) && ! $hundredp_padding ) {
-				$main_css = 'padding-left:' . Avada()->settings->get( 'hundredp_padding' ) . ';padding-right:' . Avada()->settings->get( 'hundredp_padding' );
+			if ( apply_filters( 'fusion_is_hundred_percent_template', false, $c_page_id ) ) {
+				$row_css    = 'max-width:100%;';
+				$main_class = 'width-100';
 			}
-			if ( $hundredp_padding ) {
-				$main_css = 'padding-left:' . $hundredp_padding . ';padding-right:' . $hundredp_padding;
+
+			if ( fusion_get_option( 'content_bg_full' ) && 'no' !== fusion_get_option( 'content_bg_full' ) ) {
+				$main_class .= ' full-bg';
 			}
-			$row_css    = 'max-width:100%;';
-			$main_class = 'width-100';
-		}
-		do_action( 'avada_before_main_container' );
-		?>
-		<!-- <?php if(is_home()){?>
-		<div class="heading_country news_head">
-		<div class="container">
-		<div class="row">
-		<div class="col-sm-12">
-		<h3><?php echo get_the_title(10602); ?></h3>
-		</div>
-		</div>
-		</div>
-		 </div>	
-		<?php } ?> -->
-		<main id="main" role="main" class="clearfix <?php echo esc_attr( $main_class ); ?>" style="<?php echo esc_attr( $main_css ); ?>">
-			<div class="fusion-row" style="<?php echo esc_attr( $row_css ); ?>">
+			do_action( 'avada_before_main_container' );
+			?>
+			<main id="main" class="clearfix <?php echo esc_attr( $main_class ); ?>">
+				<div class="fusion-row" style="<?php echo esc_attr( $row_css ); ?>">
